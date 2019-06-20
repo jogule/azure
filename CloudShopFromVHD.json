@@ -1,0 +1,286 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sufixbase": {
+      "type": "string",
+      "defaultValue": "jonguz",
+      "metadata": {
+        "description": "a global unique sufix"
+      }
+    }
+  },
+  "variables": {
+    "Web1VMName": "WEB1",
+    "SQL1VMName": "SQL1",
+    "BaseUri": "https://jonguz.blob.core.windows.net/public/",
+    "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id), 0, 2))]",
+    "VirtualNetworkName": "vnet1",
+    "vmstorageType": "Premium_LRS",
+    "VNETSubnet1Name": "WebTier",
+    "VNETSubnet2Name": "DataTier",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VirtualNetworkName'))]",
+    "vmstorageName": "[concat('chqdisks', variables('sufix'))]",
+    "WebOSDiskName": "WebOSDisk",
+    "WebVmSize": "Standard_F1s",
+    "WebSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
+    "WebNicName": "[concat(variables('Web1VMName'), 'NetworkInterface')]",
+    "SQLOSDiskName": "SQLOSDisk",
+    "SQLVmSize": "Standard_F1s",
+    "SQLSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet2Name'))]",
+    "SQLNicName": "[concat(variables('SQL1VMName'), 'NetworkInterface')]",
+    "sqlipName": "[concat(variables('SQL1VMName'), '-ip')]",
+    "webipName": "[concat(variables('Web1VMName'), '-ip')]"
+    },
+  "resources": [
+    {
+        "type": "Microsoft.Network/virtualNetworks",
+        "apiVersion": "2018-08-01",
+        "name": "[variables('VirtualNetworkName')]",
+        "location": "[resourceGroup().location]",
+        "tags": {
+            "displayName": "vnet1"
+        },
+        "properties": {
+            "addressSpace": {
+                "addressPrefixes": [
+                    "10.0.0.0/16"
+                ]
+            },
+            "subnets": [
+                {
+                    "name": "[variables('VNETSubnet1Name')]",
+                    "properties": {
+                        "addressPrefix": "10.0.1.0/24"
+                    }
+                },                
+                {
+                  "name": "[variables('VNETSubnet2Name')]",
+                  "properties": {
+                      "addressPrefix": "10.0.2.0/24"
+                  }
+              }
+            ]
+        }
+    },
+    {
+      "name": "[variables('vmstorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-06-01",
+      "sku": {
+        "name": "[variables('vmstorageType')]"
+      },
+      "tags": {
+        "displayName": "cloudshopstorage"
+      },
+      "dependsOn": [],
+      "kind": "Storage"
+    },
+    {
+      "name": "[variables('WebNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]",
+        "[variables('vnetID')]"
+      ],
+      "tags": {
+        "displayName": "web1-nic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('WebSubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2018-06-01",
+      "name": "[variables('WebOSDiskName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "web-disk"
+      },
+      "properties": {
+        "creationData": {
+          "createOption": "Import",
+          "sourceUri": "[concat(variables('BaseUri'),variables('WebOSDiskName'),'.vhd')]"
+        },
+        "osType": "Windows"
+      }
+    },
+    {
+      "name": "[variables('Web1VMName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]",
+        "[concat('Microsoft.Compute/disks/', variables('WebOSDiskName'))]"
+      ],
+      "tags": {
+        "displayName": "web1"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('WebVmSize')]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[variables('WebOSDiskName')]",
+            "caching": "ReadWrite",
+            "createOption": "Attach",
+            "managedDisk": {
+              "id": "[resourceId('Microsoft.Compute/disks', variables('WebOSDiskName'))]"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[variables('SQLNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('sqlipName'))]",
+        "[variables('vnetID')]"
+      ],
+      "tags": {
+        "displayName": "sql1-nic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('SQLSubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('sqlipName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2018-06-01",
+      "name": "[variables('SQLOSDiskName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "sql-disk"
+      },
+      "properties": {
+        "creationData": {
+          "createOption": "Import",
+          "sourceUri": "[concat(variables('BaseUri'),variables('SQLOSDiskName'),'.vhd')]"
+        },
+        "osType": "Windows"
+      }
+    },
+    {
+      "name": "[variables('SQL1VMName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('SQLNicName'))]"
+      ],
+      "tags": {
+        "displayName": "sql1"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('SQLVmSize')]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[variables('SQLOSDiskName')]",
+            "caching": "ReadWrite",
+            "createOption": "Attach",
+            "managedDisk": {
+              "id": "[resourceId('Microsoft.Compute/disks', variables('SQLOSDiskName'))]"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('SQLNicName'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[variables('sqlipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "sql1-ip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(toLower(variables('SQL1VMName')),'-',toLower(variables('sufix')))]"
+        }
+      }
+    },
+    {
+      "name": "[variables('webipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "web1-ip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(toLower(variables('WEB1VMName')),'-',toLower(variables('sufix')))]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "web1-url": {
+        "type": "string",
+        "value": "[reference(variables('webipName')).dnsSettings.fqdn]"
+    },
+    "sql1-url": {
+        "type": "string",
+        "value": "[reference(variables('sqlipName')).dnsSettings.fqdn]"
+    }
+  }
+}
