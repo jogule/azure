@@ -38,6 +38,7 @@
     }
   },
   "variables": {
+    "correlationID": "[substring(uniqueString(subscription().id), 0, 4)]",
     "BlobsURI": "https://jonguz.blob.core.windows.net/public/",
     "ScriptsURI": "https://raw.githubusercontent.com/jogule/azure/master/",
     "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id), 0, 2))]",
@@ -52,9 +53,9 @@
     "CloudShopDBInstallscriptUrl": "[concat(variables('ScriptsURI'), 'deploy-cloudshop-db.ps1')]",
     "SQLConfigscriptUrl": "[concat(variables('ScriptsURI'), 'configure-sql.ps1')]",
     "CloudShopInstallScriptFileName": "deploy-cloudshop.ps1",
-    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', variables('CloudShopDownloadUrl'))]",
+    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', variables('CloudShopDownloadUrl'), ' -correlationID ', variables('correlationID'), ' -rg ', resourceGroup().name)]",
     "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
-    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'))]",
+    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('correlationID'), ' -rg ', resourceGroup().name)]",
     "vmstorageName": "[concat('chqdisks', variables('sufix'))]",
     "WindowsOSVersion": "2016-Datacenter",
     "WindowsImagePublisher": "MicrosoftWindowsServer",

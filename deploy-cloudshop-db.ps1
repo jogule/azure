@@ -1,4 +1,4 @@
-param($user, $password, $dbsource, $sqlConfigUrl)
+param($user, $password, $dbsource, $sqlConfigUrl, $correlationID, $rg)
 
 $logs    = "C:\Logs"
 $data    = "C:\Data"
@@ -61,3 +61,13 @@ New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -Prop
 
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
+
+
+$id=$correlationID
+$rgname=$rg
+$script="deploy-cloudshop-db.ps1"
+$comment=""
+$result="200"
+$log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA==&id=$id&rgname=$rgname&script=$script&result=$result&comment=$comment"
+
+Invoke-WebRequest $log -UseBasicParsing
