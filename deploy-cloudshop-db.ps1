@@ -78,7 +78,7 @@ $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTE
 
 Enable-PSRemoting -force
 Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP-PUBLIC" -RemoteAddress Any
-Invoke-Command -FilePath $destinationPath -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList $password, 
+Invoke-Command -FilePath $destinationPath -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList $password
 Disable-PSRemoting -Force
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "script executed..."
 
