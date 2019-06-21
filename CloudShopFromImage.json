@@ -38,7 +38,7 @@
     }
   },
   "variables": {
-    "correlationID": "[substring(uniqueString(subscription().id), 0, 4)]",
+    "correlationID": "[substring(uniqueString(resourceGroup().id, deployment().name), 0, 4)]",
     "BlobsURI": "https://jonguz.blob.core.windows.net/public/",
     "ScriptsURI": "https://raw.githubusercontent.com/jogule/azure/master/",
     "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id), 0, 2))]",
