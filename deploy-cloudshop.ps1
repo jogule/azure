@@ -13,6 +13,19 @@ function WebLog {
     Write-Host $log -ForegroundColor Green
 }
 
+function TestLog {
+    param (
+        $code,
+        $id,
+        $rgname,
+        $scriptname,
+        $comment
+    )      
+    $log = "https://test-myapp-jonguz.azurewebsites.net/api/TestSuccess?code=$code&id=$id&rgname=$rgname&script=$scriptname&comment=$comment"
+    Invoke-WebRequest $log -UseBasicParsing -ErrorAction Continue
+    Write-Host $log -ForegroundColor Green
+}
+
 function Disable-IEESC {
     # Disable IE Enhanced Security Configuration
     $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
@@ -48,6 +61,7 @@ function Disable-IEESC {
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $scriptname="deploy-cloudshop.ps1"
 $code="rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA=="
+$codeTest = "tGODd2b9/1K5lvzEjOy5FjTOETPVN9/IP43oxn29BTOKooGDLOuW7Q=="
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "starting script..."
 
 add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
@@ -70,4 +84,5 @@ WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comme
 
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "script finished..."
 
+TestLog -code $codeTest -id $correlationID -rgname $rg -scriptname $scriptname -comment "test performed..."
 
