@@ -84,5 +84,7 @@ WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comme
 
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "script finished..."
 
+Start-Sleep 60
+
 TestLog -code $codeTest -id $correlationID -rgname $rg -scriptname $scriptname -comment "test performed..."
 
