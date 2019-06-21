@@ -1,10 +1,18 @@
 param($cloudShopUrl, $correlationID, $rg)
 
+$id=$correlationID
+$rgname=$rg
+$script="deploy-cloudshop.ps1"
 
+$comment="starting script..."
+$log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA==&id=$id&rgname=$rgname&script=$script&comment=$comment"
+Invoke-WebRequest $log -UseBasicParsing
 
 add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
 
-
+$comment="Web server enabled...."
+$log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA==&id=$id&rgname=$rgname&script=$script&comment=$comment"
+Invoke-WebRequest $log -UseBasicParsing
 
 
 $splitpath = $cloudShopUrl.Split("/")
@@ -16,9 +24,15 @@ $destinationFolder = "C:\Inetpub\wwwroot"
 $WebClient = New-Object System.Net.WebClient
 $WebClient.DownloadFile($cloudShopUrl,$destinationPath)
 
+$comment="app downloaded...."
+$log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA==&id=$id&rgname=$rgname&script=$script&comment=$comment"
+Invoke-WebRequest $log -UseBasicParsing
+
 (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 
-
+$comment="app copied...."
+$log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA==&id=$id&rgname=$rgname&script=$script&comment=$comment"
+Invoke-WebRequest $log -UseBasicParsing
 
 
 # Disable IE Enhanced Security Configuration
@@ -52,11 +66,10 @@ New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -Prop
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
-$id=$correlationID
-$rgname=$rg
-$script="deploy-cloudshop.ps1"
-$comment=""
-$result="200"
-$log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA==&id=$id&rgname=$rgname&script=$script&result=$result&comment=$comment"
+$comment="IE ESC disabled...."
+$log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA==&id=$id&rgname=$rgname&script=$script&comment=$comment"
+Invoke-WebRequest $log -UseBasicParsing
 
+$comment="script finished...."
+$log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA==&id=$id&rgname=$rgname&script=$script&comment=$comment"
 Invoke-WebRequest $log -UseBasicParsing
