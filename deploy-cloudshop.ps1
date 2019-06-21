@@ -7,13 +7,13 @@ $code="rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA=="
 
 $comment="starting script..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
 
 $comment="Web server enabled...."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 
 $splitpath = $cloudShopUrl.Split("/")
@@ -27,13 +27,13 @@ $WebClient.DownloadFile($cloudShopUrl,$destinationPath)
 
 $comment="app downloaded...."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 
 $comment="app copied...."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 
 # Disable IE Enhanced Security Configuration
@@ -69,8 +69,8 @@ Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -Foregr
 
 $comment="IE ESC disabled...."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 $comment="script finished...."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log

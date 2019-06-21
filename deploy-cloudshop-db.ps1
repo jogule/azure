@@ -7,7 +7,7 @@ $code="rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA=="
 
 $comment="starting script..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 
 $logs    = "C:\Logs"
@@ -23,7 +23,7 @@ $script  = "C:\Script"
 
 $comment="all dirs created..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 $splitpath = $sqlConfigUrl.Split("/")
 $fileName = $splitpath[$splitpath.Length-1]
@@ -33,7 +33,7 @@ $destinationPath = "$script\configure-sql.ps1"
 
 $comment="script downloaded..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 # Get the Adventure works database backup 
 $dbdestination = "C:\SQLDATA\AdventureWorks2012.bak"
@@ -41,7 +41,7 @@ Invoke-WebRequest $dbsource -OutFile $dbdestination
 
 $comment="database downloaded..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
@@ -53,13 +53,13 @@ Disable-PSRemoting -Force
 
 $comment="script executed..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
 
 $comment="fw rule created..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
@@ -94,9 +94,9 @@ Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -Foregr
 
 $comment="IE ESC disabled..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
 $comment="script finished..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log -UseBasicParsing
+Invoke-WebRequest $log
 
