@@ -1,4 +1,16 @@
 param($password, $correlationID, $rg)
+function WebLog {
+    param (
+        $code,
+        $id,
+        $rgname,
+        $scriptname,
+        $comment
+    )
+    $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$scriptname&comment=$comment"
+    Invoke-WebRequest $log -UseBasicParsing
+    Write-Host $log -ForegroundColor Green
+}
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $scriptname="configure-sql.ps1"
@@ -44,16 +56,3 @@ Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorks `
 		
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "data files restored mdf=$mdf ldf=$ldf..."
 
-
-function WebLog {
-    param (
-        $code,
-        $id,
-        $rgname,
-        $scriptname,
-        $comment
-    )
-    $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$scriptname&comment=$comment"
-    Invoke-WebRequest $log -UseBasicParsing
-    Write-Host $log -ForegroundColor Green
-}

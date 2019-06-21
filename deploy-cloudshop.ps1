@@ -1,36 +1,5 @@
 param($cloudShopUrl, $correlationID, $rg)
 
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$scriptname="deploy-cloudshop.ps1"
-$code="rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA=="
-
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "starting script..."
-
-add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
-
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "Web server enabled...."
-
-$splitpath = $cloudShopUrl.Split("/")
-$fileName = $splitpath[$splitpath.Length-1]
-
-$destinationPath = "C:\Inetpub\wwwroot\CloudShop.zip"
-$destinationFolder = "C:\Inetpub\wwwroot"
-
-$WebClient = New-Object System.Net.WebClient
-$WebClient.DownloadFile($cloudShopUrl,$destinationPath)
-
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "app downloaded...."
-
-(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
-
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "app copied...."
-
-
-Disable-IEESC
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "IE ESC disabled..."
-
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "script finished..."
-
 function WebLog {
     param (
         $code,
@@ -75,3 +44,30 @@ function Disable-IEESC {
 
     Stop-Process -Name Explorer
 }
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$scriptname="deploy-cloudshop.ps1"
+$code="rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA=="
+WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "starting script..."
+
+add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
+WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "Web server enabled...."
+
+$splitpath = $cloudShopUrl.Split("/")
+$fileName = $splitpath[$splitpath.Length-1]
+$destinationPath = "C:\Inetpub\wwwroot\CloudShop.zip"
+$destinationFolder = "C:\Inetpub\wwwroot"
+$WebClient = New-Object System.Net.WebClient
+$WebClient.DownloadFile($cloudShopUrl,$destinationPath)
+WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "app downloaded...."
+
+(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
+WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "app unzipped...."
+
+
+Disable-IEESC
+WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "IE ESC disabled..."
+
+WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "script finished..."
+
+
