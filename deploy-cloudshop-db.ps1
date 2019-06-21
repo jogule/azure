@@ -9,7 +9,7 @@ $code="rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA=="
 
 $comment="starting script..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log
+Invoke-WebRequest $log -UseBasicParsing
 Write-Host $log
 
 
@@ -26,7 +26,7 @@ $script  = "C:\Script"
 
 $comment="all dirs created..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log
+Invoke-WebRequest $log -UseBasicParsing
 Write-Host $log
 
 $splitpath = $sqlConfigUrl.Split("/")
@@ -37,7 +37,7 @@ $destinationPath = "$script\configure-sql.ps1"
 
 $comment="script downloaded..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log
+Invoke-WebRequest $log -UseBasicParsing
 Write-Host $log
 
 # Get the Adventure works database backup 
@@ -46,7 +46,7 @@ Invoke-WebRequest $dbsource -OutFile $dbdestination
 
 $comment="database downloaded..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log
+Invoke-WebRequest $log -UseBasicParsing
 Write-Host $log
 
 $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
@@ -59,14 +59,14 @@ Disable-PSRemoting -Force
 
 $comment="script executed..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log
+Invoke-WebRequest $log -UseBasicParsing
 Write-Host $log
 
 New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
 
 $comment="fw rule created..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log
+Invoke-WebRequest $log -UseBasicParsing
 Write-Host $log
 
 # Disable IE Enhanced Security Configuration
@@ -102,11 +102,11 @@ Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -Foregr
 
 $comment="IE ESC disabled..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log
+Invoke-WebRequest $log -UseBasicParsing
 Write-Host $log
 
 $comment="script finished..."
 $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$script&comment=$comment"
-Invoke-WebRequest $log
+Invoke-WebRequest $log -UseBasicParsing
 Write-Host $log
 
