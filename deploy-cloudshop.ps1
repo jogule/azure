@@ -1,5 +1,9 @@
 param($cloudShopUrl, $correlationID="id", $rg="default")
 
+#[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 $id=$correlationID
 $rgname=$rg
 $script="deploy-cloudshop.ps1"
