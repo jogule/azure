@@ -41,7 +41,7 @@
     "BlobsURI": "https://jonguz.blob.core.windows.net/public/",
     "ScriptsURI": "https://raw.githubusercontent.com/jogule/azure/develop/",
     "BaseUri": "https://jonguz.blob.core.windows.net/public/",
-    "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(utcNow()), 0, 2))]",
+    "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id, deployment().name), 0, 2))]",
     "VirtualNetworkName": "vnet1",
     "vmstorageType": "Premium_LRS",
     "VNETSubnet1Name": "WebTier",
