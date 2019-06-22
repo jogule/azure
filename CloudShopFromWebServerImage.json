@@ -201,11 +201,6 @@
         "hardwareProfile": {
           "vmSize": "[variables('WebVmSize')]"
         },
-        "osProfile": {
-          "computerName": "[parameters('Web1VMName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
         "storageProfile": {
           "osDisk": {
             "osType": "Windows",
