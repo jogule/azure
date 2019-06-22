@@ -9,7 +9,7 @@ function WebLog {
         $comment
     )
     $log = "https://test-myapp-jonguz.azurewebsites.net/api/LogSuccess?code=$code&id=$id&rgname=$rgname&script=$scriptname&comment=$comment"
-    #Invoke-WebRequest $log -UseBasicParsing -ErrorAction Continue
+    Invoke-WebRequest $log -UseBasicParsing -ErrorAction Continue
     Write-Host $log -ForegroundColor Green
 }
 function TestLog {
