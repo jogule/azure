@@ -40,6 +40,7 @@
   "variables": {
     "BlobsURI": "https://jonguz.blob.core.windows.net/public/",
     "ScriptsURI": "https://raw.githubusercontent.com/jogule/azure/develop/",
+    "BaseUri": "https://jonguz.blob.core.windows.net/public/",
     "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id, deployment().name), 0, 2))]",
     "VirtualNetworkName": "vnet1",
     "vmstorageType": "Premium_LRS",
@@ -56,11 +57,11 @@
     "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
     "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name)]",
     "vmstorageName": "[concat('chqdisks', variables('sufix'))]",
+    "WebOSDiskName": "WS2016WEBSERVER.vhd",
     "SQLSKU": "Web",
     "SQLImagePublisher": "MicrosoftSQLServer",
     "SQLImageOffer": "SQL2014SP2-WS2012R2",
     "WebAvailabilitySetName": "WebAVSet",
-    "imageName": "WS2016DC-WEBSERVER-ROLE",
     "WebVmSize": "Standard_D2S_v3",
     "WebSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
     "WebNicName": "[concat(parameters('Web1VMName'), 'NetworkInterface')]",
@@ -163,10 +164,26 @@
       }
     },
     {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2018-06-01",
+      "name": "[variables('WebOSDiskName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "web-disk"
+      },
+      "properties": {
+        "creationData": {
+          "createOption": "Import",
+          "sourceUri": "[concat(variables('BaseUri'),variables('WebOSDiskName'),'.vhd')]"
+        },
+        "osType": "Windows"
+      }
+    },
+    {
       "name": "[parameters('Web1VMName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2018-10-01",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]",
@@ -188,8 +205,14 @@
           "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
-          "imageReference": {
-            "id": "[resourceId('Microsoft.Compute/images', variables('imageName'))]"
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[variables('WebOSDiskName')]",
+            "caching": "ReadWrite",
+            "createOption": "Attach",
+            "managedDisk": {
+              "id": "[resourceId('Microsoft.Compute/disks', variables('WebOSDiskName'))]"
+            }
           }
         },
         "networkProfile": {
