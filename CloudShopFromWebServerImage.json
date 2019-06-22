@@ -111,13 +111,15 @@
       "type": "Microsoft.Compute/availabilitySets",
       "name": "[variables('avsetname')]",
       "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "aligned"
+      },
       "tags": {
         "displayName": "webavset"
       },
       "properties": {
         "platformFaultDomainCount": 2,
-        "platformUpdateDomainCount": 2,
-        "managed": false
+        "platformUpdateDomainCount": 2
       }
     },
     {
