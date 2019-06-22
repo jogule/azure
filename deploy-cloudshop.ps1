@@ -64,8 +64,8 @@ $code="rF7HuLnP2apBtEXym3fkj6/5bX0ToahjzaDxE2BStsRYO6aURKZgFA=="
 $codeTest = "tGODd2b9/1K5lvzEjOy5FjTOETPVN9/IP43oxn29BTOKooGDLOuW7Q=="
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "starting script..."
 
-add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "Web server enabled...."
+#add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
+#WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "Web server enabled...."
 
 $splitpath = $cloudShopUrl.Split("/")
 $fileName = $splitpath[$splitpath.Length-1]
@@ -79,12 +79,12 @@ WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comme
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "app unzipped...."
 
 
-Disable-IEESC
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "IE ESC disabled..."
+#Disable-IEESC
+#WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "IE ESC disabled..."
 
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "script finished..."
 
-Start-Sleep 60
+Start-Sleep 30
 
 TestLog -code $codeTest -id $correlationID -rgname $rg -scriptname $scriptname -comment "test performed..."
 
