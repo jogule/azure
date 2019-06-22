@@ -57,7 +57,7 @@
     "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
     "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name)]",
     "vmstorageName": "[concat('chqdisks', variables('sufix'))]",
-    "WebOSDiskName": "WS2016WEBSERVER.vhd",
+    "WebOSDiskName": "WS2016WEBSERVER",
     "SQLSKU": "Web",
     "SQLImagePublisher": "MicrosoftSQLServer",
     "SQLImageOffer": "SQL2014SP2-WS2012R2",
