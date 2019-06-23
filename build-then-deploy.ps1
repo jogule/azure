@@ -1,6 +1,6 @@
 $UTCNow = (Get-Date).ToUniversalTime()
 $UTCTimeTick = $UTCNow.Ticks.tostring()
-$Sufix = $UTCTimeTick.Substring(0,3)
+$Sufix = $UTCTimeTick.Substring(15,3)
 $rgName = "myrg$Sufix"
 $rgName
 
