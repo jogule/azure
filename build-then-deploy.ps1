@@ -14,4 +14,6 @@ New-AzResourceGroup -Name $rgName -Location 'East US 2'
 
 New-AzResourceGroupDeployment -ResourceGroupName $rgName -TemplateURI $templateURI -uniqueSeedString $UTCTimeTick
 
-#Remove-AzResourceGroup $rgName -Force -Asjob
+Start-Sleep 5*60
+
+Remove-AzResourceGroup $rgName -Force -Asjob
