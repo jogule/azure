@@ -2,6 +2,7 @@ $UTCNow = (Get-Date).ToUniversalTime()
 $UTCTimeTick = $UTCNow.Ticks.tostring()
 $Sufix = $UTCTimeTick.Substring(0,3)
 $rgName = "myrg$Sufix"
+$rgName
 
 git commit -am "$rgName test"
 git push
