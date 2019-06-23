@@ -2,6 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "uniqueSeedString": {
+      "type": "string",
+      "minLength": 18,
+      "maxLength": 18,
+      "metadata": {
+        "description": "the current datetime in ticks. this is used to generate a unique string for every deployment"
+      }
+    },
     "sufixbase": {
       "type": "string",
       "defaultValue": "jonguz",
@@ -73,37 +81,37 @@
     "sqlipName": "[concat(parameters('SQL1VMName'), '-ip')]",
     "webipName": "[concat(parameters('Web1VMName'), '-ip')]",
     "avsetname": "WebAVSet"
-    },
+  },
   "resources": [
     {
-        "type": "Microsoft.Network/virtualNetworks",
-        "apiVersion": "2018-08-01",
-        "name": "[variables('VirtualNetworkName')]",
-        "location": "[resourceGroup().location]",
-        "tags": {
-            "displayName": "vnet1"
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2018-08-01",
+      "name": "[variables('VirtualNetworkName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "vnet1"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
         },
-        "properties": {
-            "addressSpace": {
-                "addressPrefixes": [
-                    "10.0.0.0/16"
-                ]
-            },
-            "subnets": [
-                {
-                    "name": "[variables('VNETSubnet1Name')]",
-                    "properties": {
-                        "addressPrefix": "10.0.1.0/24"
-                    }
-                },                
-                {
-                  "name": "[variables('VNETSubnet2Name')]",
-                  "properties": {
-                      "addressPrefix": "10.0.2.0/24"
-                  }
-              }
-            ]
-        }
+        "subnets": [
+          {
+            "name": "[variables('VNETSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "10.0.1.0/24"
+            }
+          },
+          {
+            "name": "[variables('VNETSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "10.0.2.0/24"
+            }
+          }
+        ]
+      }
     },
     {
       "apiVersion": "2016-04-30-preview",
