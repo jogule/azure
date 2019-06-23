@@ -81,10 +81,14 @@ $destinationPath = "$script\configure-sql.ps1"
 (New-Object Net.WebClient).DownloadFile($sqlConfigUrl,$destinationPath);
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "script downloaded..."
 
-# Get the Adventure works database backup 
-$dbdestination = "C:\SQLDATA\AdventureWorks2012.bak"
-Invoke-WebRequest $dbsource -OutFile $dbdestination
-WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "database downloaded..."
+$destinationPath = "C:\SQLDATA\AdventureWorks2012.zip"
+$destinationFolder = "C:\SQLDATA"
+$WebClient = New-Object System.Net.WebClient
+$WebClient.DownloadFile($dbsource,$destinationPath)
+WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "db downloaded...."
+
+(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
+WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "db unzipped...."
 
 $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
