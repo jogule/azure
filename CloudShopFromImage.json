@@ -39,7 +39,7 @@
   },
   "variables": {
     "BlobsURI": "https://jonguz.blob.core.windows.net/public/",
-    "ScriptsURI": "https://raw.githubusercontent.com/jogule/azure/develop/",
+    "ScriptsURI": "https://raw.githubusercontent.com/jogule/azure/master/",
     "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id, deployment().name), 0, 2))]",
     "VirtualNetworkName": "vnet1",
     "vmstorageType": "Premium_LRS",
