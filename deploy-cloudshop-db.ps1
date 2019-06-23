@@ -87,7 +87,7 @@ $WebClient = New-Object System.Net.WebClient
 $WebClient.DownloadFile($dbsource,$dbPath)
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "db downloaded...."
 
-(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
+(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($dbPath).Items(),16)
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "db unzipped...."
 
 $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
