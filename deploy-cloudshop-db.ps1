@@ -81,10 +81,10 @@ $destinationPath = "$script\configure-sql.ps1"
 (New-Object Net.WebClient).DownloadFile($sqlConfigUrl,$destinationPath);
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "script downloaded..."
 
-$destinationPath = "C:\SQLDATA\AdventureWorks2012.zip"
+$dbPath = "C:\SQLDATA\AdventureWorks2012.zip"
 $destinationFolder = "C:\SQLDATA"
 $WebClient = New-Object System.Net.WebClient
-$WebClient.DownloadFile($dbsource,$destinationPath)
+$WebClient.DownloadFile($dbsource,$dbPath)
 WebLog -code $code -id $correlationID -rgname $rg -scriptname $scriptname -comment "db downloaded...."
 
 (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
