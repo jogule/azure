@@ -53,15 +53,15 @@ WebLog $correlationID -rgname $rg -scriptname $scriptname -comment "all data fol
 $destinationPath = "$script\configure-sql.ps1"
 # Download config script
 (New-Object Net.WebClient).DownloadFile($sqlConfigUrl,$destinationPath);
-WebLog $correlationID -rgname $rg -scriptname $scriptname -comment "script downloaded..." -environment $environment
+WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "script downloaded..." -environment $environment
 
 $dbPath = "C:\SQLDATA\AdventureWorks2012.zip"
 $destinationFolder = "C:\SQLDATA"
 (New-Object Net.WebClient).DownloadFile($dbsource,$dbPath)
-WebLog $correlationID -rgname $rg -scriptname $scriptname -comment "db downloaded...." -environment $environment
+WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "db downloaded...." -environment $environment
 
 (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($dbPath).Items(),16)
-WebLog $correlationID -rgname $rg -scriptname $scriptname -comment "db unzipped...." -environment $environment
+WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "db unzipped...." -environment $environment
 
 $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
@@ -70,12 +70,12 @@ Enable-PSRemoting -force
 Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP-PUBLIC" -RemoteAddress Any
 Invoke-Command -FilePath $destinationPath -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList $password
 Disable-PSRemoting -Force
-WebLog $correlationID -rgname $rg -scriptname $scriptname -comment "script executed..." -environment $environment
+WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "script executed..." -environment $environment
 
 New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
-WebLog $correlationID -rgname $rg -scriptname $scriptname -comment "fw rule created..." -environment $environment
+WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "fw rule created..." -environment $environment
 
-WebLog $correlationID -rgname $rg -scriptname $scriptname -comment "script finished..." -environment $environment
+WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "script finished..." -environment $environment
 
 #Start-Sleep 10
 TestLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "test performed..." -environment $environment
