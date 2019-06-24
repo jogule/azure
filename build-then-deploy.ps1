@@ -9,7 +9,8 @@ $Sufix = $UTCTimeTick.Substring(15,3)
 $rgName = "myrg$Sufix"
 $rgName
 
-git commit -am "$rgName test"
+git add .
+git commit -m "$rgName test"
 git push
 
 New-AzResourceGroup -Name $rgName -Location 'East US 2'
