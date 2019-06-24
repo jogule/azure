@@ -2,6 +2,26 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "uniqueSeedString": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 18,
+      "defaultValue": "j63696933269740930",
+      "metadata": {
+        "description": "the current datetime in ticks. this is used to generate a unique string for every deployment"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "develop or master"
+      },
+      "defaultValue": "master",
+      "allowedValues": [
+        "develop",
+        "master"
+      ]
+    },
     "sufixbase": {
       "type": "string",
       "defaultValue": "jonguz",

@@ -2,6 +2,26 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "uniqueSeedString": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 18,
+      "defaultValue": "j63696933269740930",
+      "metadata": {
+        "description": "the current datetime in ticks. this is used to generate a unique string for every deployment"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "development or master"
+      },
+      "defaultValue": "master",
+      "allowedValues": [
+        "develop",
+        "master"
+      ]
+    },
     "sufixbase": {
       "type": "string",
       "defaultValue": "jonguz",
@@ -39,34 +59,30 @@
   },
   "variables": {
     "BlobsURI": "https://jonguz.blob.core.windows.net/public/",
-    "ScriptsURI": "https://raw.githubusercontent.com/jogule/azure/master/",
-    "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id, deployment().name), 0, 2))]",
+    "ScriptsURI": "[concat('https://raw.githubusercontent.com/jogule/azure/',parameters('environment'),'/')]",
+    "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id, parameters('uniqueSeedString')), 0, 2))]",
     "VirtualNetworkName": "vnet1",
     "vmstorageType": "Premium_LRS",
     "VNETSubnet1Name": "WebTier",
     "VNETSubnet2Name": "DataTier",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VirtualNetworkName'))]",
     "CloudShopDownloadUrl": "[concat(variables('BlobsURI'), 'Cloudshop.zip')]",
-    "CloudShopDBDownloadUrl": "[concat(variables('BlobsURI'), 'AdventureWorks2012.bak')]",
-    "CloudShopInstallscriptUrl": "[concat(variables('ScriptsURI'), 'deploy-cloudshop.ps1')]",
-    "CloudShopDBInstallscriptUrl": "[concat(variables('ScriptsURI'), 'deploy-cloudshop-db.ps1')]",
+    "CloudShopDBDownloadUrl": "[concat(variables('BlobsURI'), 'AdventureWorks2012.zip')]",
+    "CloudShopInstallscriptUrl": "[concat(variables('ScriptsURI'), variables('CloudShopInstallScriptFileName'))]",
+    "CloudShopDBInstallscriptUrl": "[concat(variables('ScriptsURI'), variables('CloudShopDBInstallScriptFileName'))]",
     "SQLConfigscriptUrl": "[concat(variables('ScriptsURI'), 'configure-sql.ps1')]",
-    "CloudShopInstallScriptFileName": "deploy-cloudshop.ps1",
-    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', variables('CloudShopDownloadUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name)]",
-    "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
-    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name)]",
+    "CloudShopInstallScriptFileName": "deploy-web-scenario3.ps1",
+    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -appurl ', variables('CloudShopDownloadUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, ' -environment ', parameters('environment'))]",
+    "CloudShopDBInstallScriptFileName": "deploy-sql-scenario3.ps1",
+    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, ' -environment ', parameters('environment'))]",
     "vmstorageName": "[concat('chqdisks', variables('sufix'))]",
-    "WindowsOSVersion": "2016-Datacenter",
-    "WindowsImagePublisher": "MicrosoftWindowsServer",
-    "WindowsImageOffer": "WindowsServer",
+    "WebOSDiskName": "WS2016WEBSERVER",
     "SQLSKU": "Web",
     "SQLImagePublisher": "MicrosoftSQLServer",
     "SQLImageOffer": "SQL2014SP2-WS2012R2",
     "WebAvailabilitySetName": "WebAVSet",
-    "WebOSDiskName": "WebOSDisk",
     "WebVmSize": "Standard_D2S_v3",
     "WebSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
-    "WebStorageAccountContainerName": "vhds",
     "WebNicName": "[concat(parameters('Web1VMName'), 'NetworkInterface')]",
     "SQLOSDiskName": "SQLOSDisk",
     "SQLVmSize": "Standard_D2S_v3",
@@ -77,50 +93,52 @@
     "sqlipName": "[concat(parameters('SQL1VMName'), '-ip')]",
     "webipName": "[concat(parameters('Web1VMName'), '-ip')]",
     "avsetname": "WebAVSet"
-    },
+  },
   "resources": [
     {
-        "type": "Microsoft.Network/virtualNetworks",
-        "apiVersion": "2018-08-01",
-        "name": "[variables('VirtualNetworkName')]",
-        "location": "[resourceGroup().location]",
-        "tags": {
-            "displayName": "vnet1"
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2018-08-01",
+      "name": "[variables('VirtualNetworkName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "vnet1"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
         },
-        "properties": {
-            "addressSpace": {
-                "addressPrefixes": [
-                    "10.0.0.0/16"
-                ]
-            },
-            "subnets": [
-                {
-                    "name": "[variables('VNETSubnet1Name')]",
-                    "properties": {
-                        "addressPrefix": "10.0.1.0/24"
-                    }
-                },                
-                {
-                  "name": "[variables('VNETSubnet2Name')]",
-                  "properties": {
-                      "addressPrefix": "10.0.2.0/24"
-                  }
-              }
-            ]
-        }
+        "subnets": [
+          {
+            "name": "[variables('VNETSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "10.0.1.0/24"
+            }
+          },
+          {
+            "name": "[variables('VNETSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "10.0.2.0/24"
+            }
+          }
+        ]
+      }
     },
     {
       "apiVersion": "2016-04-30-preview",
       "type": "Microsoft.Compute/availabilitySets",
       "name": "[variables('avsetname')]",
       "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "aligned"
+      },
       "tags": {
         "displayName": "webavset"
       },
       "properties": {
         "platformFaultDomainCount": 2,
-        "platformUpdateDomainCount": 2,
-        "managed": false
+        "platformUpdateDomainCount": 2
       }
     },
     {
@@ -167,10 +185,26 @@
       }
     },
     {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2018-06-01",
+      "name": "[variables('WebOSDiskName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "web-disk"
+      },
+      "properties": {
+        "creationData": {
+          "createOption": "Import",
+          "sourceUri": "[concat(variables('BlobsURI'),variables('WebOSDiskName'),'.vhd')]"
+        },
+        "osType": "Windows"
+      }
+    },
+    {
       "name": "[parameters('Web1VMName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2018-10-01",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]",
@@ -186,25 +220,15 @@
         "hardwareProfile": {
           "vmSize": "[variables('WebVmSize')]"
         },
-        "osProfile": {
-          "computerName": "[parameters('Web1VMName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
         "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('WindowsImagePublisher')]",
-            "offer": "[variables('WindowsImageOffer')]",
-            "sku": "[variables('WindowsOSVersion')]",
-            "version": "latest"
-          },
           "osDisk": {
-            "name": "WebOSDisk",
-            "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2017-06-01').primaryEndpoints.blob, variables('WebStorageAccountContainerName'), '/', variables('WebOSDiskName'), '.vhd')]"
-            },
+            "osType": "Windows",
+            "name": "[variables('WebOSDiskName')]",
             "caching": "ReadWrite",
-            "createOption": "FromImage"
+            "createOption": "Attach",
+            "managedDisk": {
+              "id": "[resourceId('Microsoft.Compute/disks', variables('WebOSDiskName'))]"
+            }
           }
         },
         "networkProfile": {
