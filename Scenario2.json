@@ -1,0 +1,400 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "uniqueSeedString": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 18,
+      "defaultValue": "j63696933269740930",
+      "metadata": {
+        "description": "the current datetime in ticks. this is used to generate a unique string for every deployment"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "development or master"
+      },
+      "defaultValue": "master",
+      "allowedValues": [
+        "develop",
+        "master"
+      ]
+    },
+    "sufixbase": {
+      "type": "string",
+      "defaultValue": "jonguz",
+      "metadata": {
+        "description": "a global unique sufix"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "demo",
+      "metadata": {
+        "description": "The name of the administrator account of the new VM"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "defaultValue": "demo@pass123",
+      "metadata": {
+        "description": "The password for the administrator account of the new VM and domain"
+      }
+    },
+    "Web1VMName": {
+      "type": "string",
+      "defaultValue": "WEB1",
+      "minLength": 1
+    },
+    "SQL1VMName": {
+      "type": "string",
+      "defaultValue": "SQL1",
+      "minLength": 1,
+      "allowedValues": [
+        "SQL1"
+      ]
+    }
+  },
+  "variables": {
+    "BlobsURI": "https://jonguz.blob.core.windows.net/public/",
+    "ScriptsURI": "[concat('https://raw.githubusercontent.com/jonguz/azure/',parameters('environment'),'/')]",
+    "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id, parameters('uniqueSeedString')), 0, 2))]",
+    "VirtualNetworkName": "vnet1",
+    "vmstorageType": "Premium_LRS",
+    "VNETSubnet1Name": "WebTier",
+    "VNETSubnet2Name": "DataTier",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VirtualNetworkName'))]",
+    "CloudShopDownloadUrl": "[concat(variables('BlobsURI'), 'Cloudshop.zip')]",
+    "CloudShopDBDownloadUrl": "[concat(variables('BlobsURI'), 'AdventureWorks2012.bak')]",
+    "CloudShopInstallscriptUrl": "[concat(variables('ScriptsURI'), 'deploy-cloudshop.ps1')]",
+    "CloudShopDBInstallscriptUrl": "[concat(variables('ScriptsURI'), 'deploy-cloudshop-db.ps1')]",
+    "SQLConfigscriptUrl": "[concat(variables('ScriptsURI'), 'configure-sql.ps1')]",
+    "CloudShopInstallScriptFileName": "deploy-cloudshop.ps1",
+    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', variables('CloudShopDownloadUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name)]",
+    "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
+    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name)]",
+    "vmstorageName": "[concat('chqdisks', variables('sufix'))]",
+    "WindowsOSVersion": "2016-Datacenter",
+    "WindowsImagePublisher": "MicrosoftWindowsServer",
+    "WindowsImageOffer": "WindowsServer",
+    "SQLSKU": "Web",
+    "SQLImagePublisher": "MicrosoftSQLServer",
+    "SQLImageOffer": "SQL2014SP2-WS2012R2",
+    "WebAvailabilitySetName": "WebAVSet",
+    "WebOSDiskName": "WebOSDisk",
+    "WebVmSize": "Standard_D2S_v3",
+    "WebSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
+    "WebStorageAccountContainerName": "vhds",
+    "WebNicName": "[concat(parameters('Web1VMName'), 'NetworkInterface')]",
+    "SQLOSDiskName": "SQLOSDisk",
+    "SQLVmSize": "Standard_D2S_v3",
+    "SQLSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet2Name'))]",
+    "SQLStorageAccountContainerName": "vhds",
+    "SQLNicName": "[concat(parameters('SQL1VMName'), 'NetworkInterface')]",
+    "scriptFolder": ".",
+    "sqlipName": "[concat(parameters('SQL1VMName'), '-ip')]",
+    "webipName": "[concat(parameters('Web1VMName'), '-ip')]",
+    "avsetname": "WebAVSet"
+    },
+  "resources": [
+    {
+        "type": "Microsoft.Network/virtualNetworks",
+        "apiVersion": "2018-08-01",
+        "name": "[variables('VirtualNetworkName')]",
+        "location": "[resourceGroup().location]",
+        "tags": {
+            "displayName": "vnet1"
+        },
+        "properties": {
+            "addressSpace": {
+                "addressPrefixes": [
+                    "10.0.0.0/16"
+                ]
+            },
+            "subnets": [
+                {
+                    "name": "[variables('VNETSubnet1Name')]",
+                    "properties": {
+                        "addressPrefix": "10.0.1.0/24"
+                    }
+                },                
+                {
+                  "name": "[variables('VNETSubnet2Name')]",
+                  "properties": {
+                      "addressPrefix": "10.0.2.0/24"
+                  }
+              }
+            ]
+        }
+    },
+    {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('avsetname')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "webavset"
+      },
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2,
+        "managed": false
+      }
+    },
+    {
+      "name": "[variables('vmstorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-06-01",
+      "sku": {
+        "name": "[variables('vmstorageType')]"
+      },
+      "tags": {
+        "displayName": "cloudshopstorage"
+      },
+      "dependsOn": [],
+      "kind": "Storage"
+    },
+    {
+      "name": "[variables('WebNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]",
+        "[variables('vnetID')]"
+      ],
+      "tags": {
+        "displayName": "web1-nic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('WebSubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('Web1VMName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('WebAvailabilitySetName'))]"
+      ],
+      "tags": {
+        "displayName": "web1"
+      },
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('WebAvailabilitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('WebVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('Web1VMName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('WindowsImagePublisher')]",
+            "offer": "[variables('WindowsImageOffer')]",
+            "sku": "[variables('WindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "WebOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2017-06-01').primaryEndpoints.blob, variables('WebStorageAccountContainerName'), '/', variables('WebOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "name": "InstallCloudShop",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('Web1VMName'))]"
+          ],
+          "tags": {
+            "displayName": "InstallCloudShop"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.4",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(variables('CloudShopInstallscriptUrl'))]"
+              ],
+              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('CloudShopInstallScriptFileName'), ' ', variables('CloudShopInstallScriptParameters'))]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('SQLNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('sqlipName'))]",
+        "[variables('vnetID')]"
+      ],
+      "tags": {
+        "displayName": "sql1-nic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('SQLSubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('sqlipName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('SQL1VMName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('SQLNicName'))]"
+      ],
+      "tags": {
+        "displayName": "sql1"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('SQLVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('SQL1VMName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('SQLImagePublisher')]",
+            "offer": "[variables('SQLImageOffer')]",
+            "sku": "[variables('SQLSKU')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "SQLOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2017-06-01').primaryEndpoints.blob, variables('SQLStorageAccountContainerName'), '/', variables('SQLOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('SQLNicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "name": "InstallCloudShopDB",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('SQL1VMName'))]"
+          ],
+          "tags": {
+            "displayName": "InstallCloudShopDB"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.4",
+            "autoUpgradeMinorVersion": false,
+            "settings": {
+              "fileUris": [
+                "[concat(variables('CloudShopDBInstallscriptUrl'))]"
+              ],
+              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('CloudShopDBInstallScriptFileName'), ' ', variables('CloudShopDBInstallScriptParameters'))]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('sqlipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "sql1-ip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(toLower(parameters('SQL1VMName')),'-',toLower(variables('sufix')))]"
+        }
+      }
+    },
+    {
+      "name": "[variables('webipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "web1-ip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(toLower(parameters('WEB1VMName')),'-',toLower(variables('sufix')))]"
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}
