@@ -59,13 +59,8 @@
   },
   "variables": {
     "BlobsURI": "https://jonguz.blob.core.windows.net/public/",
-<<<<<<< HEAD:CloudShopFromImage.json
-    "ScriptsURI": "https://raw.githubusercontent.com/jogule/azure/master/",
-    "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id, deployment().name), 0, 2))]",
-=======
     "ScriptsURI": "[concat('https://raw.githubusercontent.com/jogule/azure/',parameters('environment'),'/')]",
     "sufix": "[concat(parameters('sufixbase'), substring(uniqueString(resourceGroup().id, parameters('uniqueSeedString')), 0, 2))]",
->>>>>>> develop:Scenario2.json
     "VirtualNetworkName": "vnet1",
     "vmstorageType": "Premium_LRS",
     "VNETSubnet1Name": "WebTier",
