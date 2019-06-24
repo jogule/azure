@@ -10,7 +10,7 @@ $rgName = "myrg$Sufix"
 $rgName
 
 git commit -am "$rgName test"
-git push origin $environment
+git push github $environment
 
 New-AzResourceGroup -Name $rgName -Location 'East US 2'
 
