@@ -1,5 +1,7 @@
+param($scenarioNumber = 3)
 
-$templateURI = "https://raw.githubusercontent.com/jogule/azure/develop/CloudShopFromWebServerImage.json"
+$environment = "develop"
+$templateURI = "https://raw.githubusercontent.com/jogule/azure/$environment/Scenario$scenarioNumber.json"
 $templateURI
 $UTCNow = (Get-Date).ToUniversalTime()
 $UTCTimeTick = $UTCNow.Ticks.tostring()
@@ -12,7 +14,7 @@ git push
 
 New-AzResourceGroup -Name $rgName -Location 'East US 2'
 
-New-AzResourceGroupDeployment -ResourceGroupName $rgName -TemplateURI $templateURI -uniqueSeedString $UTCTimeTick
+New-AzResourceGroupDeployment -ResourceGroupName $rgName -TemplateURI $templateURI -uniqueSeedString $UTCTimeTick -environment $environment
 
 Start-Sleep 5*60
 
