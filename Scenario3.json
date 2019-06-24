@@ -72,7 +72,7 @@
     "CloudShopDBInstallscriptUrl": "[concat(variables('ScriptsURI'), variables('CloudShopDBInstallScriptFileName'))]",
     "SQLConfigscriptUrl": "[concat(variables('ScriptsURI'), 'configure-sql.ps1')]",
     "CloudShopInstallScriptFileName": "deploy-web-scenario3.ps1",
-    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', variables('CloudShopDownloadUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, ' -environment ', parameters('environment'))]",
+    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -appurl ', variables('CloudShopDownloadUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, ' -environment ', parameters('environment'))]",
     "CloudShopDBInstallScriptFileName": "deploy-sql-scenario3.ps1",
     "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, ' -environment ', parameters('environment'))]",
     "vmstorageName": "[concat('chqdisks', variables('sufix'))]",

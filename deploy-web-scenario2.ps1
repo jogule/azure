@@ -1,4 +1,4 @@
-param($cloudShopUrl, $correlationID, $rg, $environment)
+param($appUrl, $correlationID, $rg, $environment)
 
 function WebLog {
     param (
@@ -40,11 +40,11 @@ WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "starting
 add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
 WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "Web server enabled...." -environment $environment
 
-#$splitpath = $cloudShopUrl.Split("/")
+#$splitpath = $appUrl.Split("/")
 #$fileName = $splitpath[$splitpath.Length-1]
 $destinationPath = "C:\Inetpub\wwwroot\CloudShop.zip"
 $destinationFolder = "C:\Inetpub\wwwroot"
-(New-Object Net.WebClient).DownloadFile($cloudShopUrl,$destinationPath)
+(New-Object Net.WebClient).DownloadFile($appUrl,$destinationPath)
 WebLog -id $correlationID -rgname $rg -scriptname $scriptname -comment "app downloaded...." -environment $environment
 
 (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
