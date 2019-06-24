@@ -4,8 +4,8 @@
   "parameters": {
     "uniqueSeedString": {
       "type": "string",
-      "minLength": 18,
-      "maxLength": 0,
+      "minLength": 0,
+      "maxLength": 18,
       "defaultValue": "j63696933269740930",
       "metadata": {
         "description": "the current datetime in ticks. this is used to generate a unique string for every deployment"
