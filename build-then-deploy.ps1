@@ -1,10 +1,10 @@
-param($scenarioNumber = 3)
+param($scenarioNumber = 3, $environment = "develop")
 
-$environment = "develop"
 $templateURI = "https://raw.githubusercontent.com/jogule/azure/$environment/Scenario$scenarioNumber.json"
 $templateURI
 $UTCNow = (Get-Date).ToUniversalTime()
 $UTCTimeTick = $UTCNow.Ticks.tostring()
+$UTCTimeTick = "j" + $UTCTimeTick.Substring(0,17)
 $Sufix = $UTCTimeTick.Substring(15,3)
 $rgName = "myrg$Sufix"
 $rgName

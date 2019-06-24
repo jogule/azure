@@ -5,7 +5,8 @@
     "uniqueSeedString": {
       "type": "string",
       "minLength": 18,
-      "maxLength": 18,
+      "maxLength": 0,
+      "defaultValue": "j63696933269740930",
       "metadata": {
         "description": "the current datetime in ticks. this is used to generate a unique string for every deployment"
       }
@@ -71,9 +72,9 @@
     "CloudShopDBInstallscriptUrl": "[concat(variables('ScriptsURI'), 'deploy-cloudshop-db.ps1')]",
     "SQLConfigscriptUrl": "[concat(variables('ScriptsURI'), 'configure-sql.ps1')]",
     "CloudShopInstallScriptFileName": "deploy-cloudshop.ps1",
-    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', variables('CloudShopDownloadUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, parameters('environment'))]",
+    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', variables('CloudShopDownloadUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, ' -environment ', parameters('environment'))]",
     "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
-    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, parameters('environment'))]",
+    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', variables('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', variables('SQLConfigscriptUrl'), ' -correlationID ', variables('sufix'), ' -rg ', resourceGroup().name, ' -environment ', parameters('environment'))]",
     "vmstorageName": "[concat('chqdisks', variables('sufix'))]",
     "WebOSDiskName": "WS2016WEBSERVER",
     "SQLSKU": "Web",
