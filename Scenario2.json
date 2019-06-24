@@ -396,5 +396,14 @@
       }
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "web1-url": {
+        "type": "string",
+        "value": "[reference(variables('webipName')).dnsSettings.fqdn]"
+    },
+    "sql1-url": {
+        "type": "string",
+        "value": "[reference(variables('sqlipName')).dnsSettings.fqdn]"
+    }
+  }
 }
